@@ -1,29 +1,46 @@
-SQWIDGET COMPRESSOR..
-A web asset optimization tool..
+h1.SQWIDGET COMPRESSOR
+h2. A web asset optimization tool
 
-*Workflow:*
+
+h3. Workflow:
  
-1. Compress gif,png,jpeg image assets.
-2. Concatenates and minifies css and javascript files. 
-3. Embeds inline image assets linked from the stylesheet by using data:uris or mhtml (ie < v8).
-4. More...?
+# Compresses gif,png,and jpeg image assets.
+# Concatenates and minifies css and javascript files. 
+# Embeds inline image assets linked from the stylesheet into data:uris or mhtml(ie < v8).
 
 
-*Status:* pre-pre-alpha..
-At the moment does only 1 and 2.. 
-and it has yet no user interface whatsoever.
+h3. Status: 
 
+This code is in Pre-pre-alpha state.. At the moment it barely does point 1 and 2 and it does not have yet 
+user interface whatsoever. 
 
-*Requirements:*
+h3. Requirements:
 
  (assuming that you are running Ubuntu Linux  )
 
- apt-get install gifsicle
- apt-get install pngcrush
- apt-get install libjpeg-progs
+* @apt-get install gifsicle@
+* @apt-get install pngcrush@
+* @apt-get install libjpeg-progs@
 
- apt-get install rubygems
- gem install yui-compressor
- gem install closure-compiler
+* @apt-get install rubygems@
+* @gem install yui-compressor@
+* @gem install closure-compiler@
+* @gem install rspec@ (testing only) 
 
- 
+h3. Running it:
+
+In order to reproduce the same directory structure that I am currently
+using while developing/testing the compressor, downlad Polpo, a Drupal theme 
+(this was almost a random, arbitrary choice).
+
+*  @wget http://ftp.drupal.org/files/projects/polpo-6.x-1.1.tar.gz@ 
+*  @tar zxvf polpo-6.x-1.1.tar.gz@
+*  @mv polpo specs/test_dir@ 
+    
+then 
+  
+@ruby run.rb@
+  
+This just triggers the execution chain. I would not say that at the moment this produces an informative output, 
+but I am working on that :) 
+  
