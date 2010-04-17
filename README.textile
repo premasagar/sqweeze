@@ -31,17 +31,18 @@ h3. Requirements
 h3. Running it
 
 In order to reproduce the same directory structure that I am currently
-using while developing/testing the compressor, downlad Polpo, a Drupal theme 
-(this was almost a random, arbitrary choice).
+using while developing/testing the compressor, download Polpo, a Drupal theme 
+(this was  a random, arbitrary choice), uncompress it, and place it into spec/test_dir.
 
 *  @wget http://ftp.drupal.org/files/projects/polpo-6.x-1.1.tar.gz@ 
 *  @tar zxvf polpo-6.x-1.1.tar.gz@
 *  @mv polpo specs/test_dir@ 
     
-then 
+then: 
   
 @ruby run.rb@
  
-Actually this does not actually modify files, but triggers the complete 
-execution chain and prints to standard output issued commands and, in case of javascript and css, 
-compressed output.
+Actually the run.rb script does not actually modify files, but nonetheless triggers the complete 
+execution chain, printing to standard output the commands issued and, in case of javascript and css, 
+the compressed output. I reckon that this output is not really readable, but yet it gives a sense of 
+what is happening.   
