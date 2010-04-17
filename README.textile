@@ -1,20 +1,20 @@
-h1.SQWIDGET COMPRESSOR
+h1. SQWIDGET COMPRESSOR
 h2. A web asset optimization tool
 
 
-h3. Workflow:
+h3. Workflow
  
 # Compresses gif,png,and jpeg image assets.
 # Concatenates and minifies css and javascript files. 
 # Embeds inline image assets linked from the stylesheet into data:uris or mhtml(ie < v8).
 
 
-h3. Status: 
+h3. Status
 
 This code is in Pre-pre-alpha state.. At the moment it barely does point 1 and 2 and it does not have yet 
 user interface whatsoever. 
 
-h3. Requirements:
+h3. Requirements
 
  (assuming that you are running Ubuntu Linux  )
 
@@ -27,7 +27,7 @@ h3. Requirements:
 * @gem install closure-compiler@
 * @gem install rspec@ (testing only) 
 
-h3. Running it:
+h3. Running it
 
 In order to reproduce the same directory structure that I am currently
 using while developing/testing the compressor, downlad Polpo, a Drupal theme 
@@ -43,4 +43,3 @@ then
   
 This just triggers the execution chain. I would not say that at the moment this produces an informative output, 
 but I am working on that :) 
-  
