@@ -1,4 +1,4 @@
-h1. Sqwiget Compressor
+h1. Sqwidget Compressor
 
 h2. yet another web asset optimization tool
 
