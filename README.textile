@@ -1,10 +1,11 @@
-h1. SQWIDGET COMPRESSOR
-h2. A web asset optimization tool
+h1. Sqwiget Compressor
+
+h2. yet another web asset optimization tool
 
 
 h3. Workflow
  
-# Compresses gif,png,and jpeg image assets.
+# Compresses gif,png,and jpeg image files.
 # Concatenates and minifies css and javascript files. 
 # Embeds inline image assets linked from the stylesheet into data:uris or mhtml(ie < v8).
 
@@ -40,6 +41,7 @@ using while developing/testing the compressor, downlad Polpo, a Drupal theme
 then 
   
 @ruby run.rb@
-  
-This just triggers the execution chain. I would not say that at the moment this produces an informative output, 
-but I am working on that :) 
+ 
+Actually this does not actually modify files, but triggers the complete 
+execution chain and prints to standard output issued commands and, in case of javascript and css, 
+compressed output.
