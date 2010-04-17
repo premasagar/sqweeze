@@ -1,0 +1,29 @@
+SQWIDGET COMPRESSOR..
+A web asset optimization tool..
+
+*Workflow:*
+ 
+1. Compress gif,png,jpeg image assets.
+2. Concatenates and minifies css and javascript files. 
+3. Embeds inline image assets linked from the stylesheet by using data:uris or mhtml (ie < v8).
+4. More...?
+
+
+*Status:* pre-pre-alpha..
+At the moment does only 1 and 2.. 
+and it has yet no user interface whatsoever.
+
+
+*Requirements:*
+
+ (assuming that you are running Ubuntu Linux  )
+
+ apt-get install gifsicle
+ apt-get install pngcrush
+ apt-get install libjpeg-progs
+
+ apt-get install rubygems
+ gem install yui-compressor
+ gem install closure-compiler
+
+ 
