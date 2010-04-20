@@ -7,18 +7,14 @@ class JsCompressor < Compressor
 
   end
 
-  def process(input,cmd=nil)
-
+  def process(input_str,cmd=nil)
    unless @favourite_jscompressor == :closure
         compressor, method = YUI::JavaScriptCompressor.new( :munge => true), :compress
    else
         compressor, method = Closure::Compiler.new, :compiler
    end
 
-    File.open(input,'r+') do |f|
-        puts compressor.send(method, f.read)
-        f.close
-    end
+   puts compressor.send(method, input_str)
   end
  
 end

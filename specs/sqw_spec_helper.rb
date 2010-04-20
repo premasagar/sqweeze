@@ -14,6 +14,6 @@ EOF
       f.close
   end
   def delete_configfile
-    File.delete(SQW_CONF_FILE) if File.exists?(SQW_CONF_FILE)
+    FileUtils.rm_r(SQW_CONF_FILE) if File.exists?(SQW_CONF_FILE)
   end
 

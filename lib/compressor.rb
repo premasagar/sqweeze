@@ -25,14 +25,13 @@ class Compressor
      @concatenate_input=false
      
      @bkupdir_path=$cm.mkpath("../#{File.basename($cm.source_dir)}.backup")
-       make_backup_dir if not File.exists?(@bkupdir_path) 
+     backup_dir if not File.exists?(@bkupdir_path) 
   end
   attr_reader :bkupdir_path
 
 
-  def make_backup_dir
-     #TODO: Rubyfy this
-     system("cp -r #{$cm.source_dir} #{@bkupdir_path}")
+  def backup_dir
+     FileUtils.cp_r($cm.source_dir, @bkupdir_path)
   end
 
   attr_accessor :default_bin
@@ -85,34 +84,18 @@ class Compressor
   def compress()
 
     @input_files=collect_filepaths
-    @input_files=concatenate_files.to_a if @concatenate_input
+    @input_files=[concatenate_files] if @concatenate_input
 
     cmd= (@commands.empty?)? nil : @commands[ @default_command ]
 
+     
     @input_files.each do |path|
       process(path,cmd)
     end  
   end
 
-
-
-  def concatenate_files(output='/tmp/sqwidget_'+Time.now.to_i.to_s)
-    newfile = ""
-
-    @input_files.each do |fname|
-
-        next if File.directory?(fname)
-
-        f=File.open(fname,'r')
-        newfile << f.read
-        f.close
-
-    end  
-
-    newf=File.open(output,'w')
-    newf.write(newfile)
-    newf.close
-
-    output
+  def concatenate_files
+    @input_files.collect{|f|File.open(f,'r').read}.join("\n")
   end
+
 end

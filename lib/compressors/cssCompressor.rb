@@ -4,13 +4,8 @@ class CssCompressor < Compressor
     @concatenate_input=true
   end
 
-  def process(input,cmd=nil)
-
-    File.open(input,'r+') do |f|
-        yui=YUI::CssCompressor.new 
-        puts yui.compress(f.read)
-        f.close
-    end
+  def process(input_str,cmd=nil)
+    puts YUI::CssCompressor.new.compress(input_str)
   end
  
 end
