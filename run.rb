@@ -19,8 +19,12 @@ ConfManager.new('specs/test_dir')
   JsCompressor.new,
   CssCompressor.new
 ].each do |cmp| 
-  
+
+
+  puts "initialising.."
   cmp.compress
+  puts "compressing #{cmp.collect_filepaths.size } #{cmp.input_file_extensions.to_s.upcase} files from #{ cmp.byteweight_before} to #{cmp.byteweight_after} bytes"
+
 
 
 end

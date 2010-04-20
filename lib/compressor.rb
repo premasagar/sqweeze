@@ -36,8 +36,10 @@ class Compressor
 
 
   attr_reader :bkupdir_path, 
+              :input_files, 
               :input_file_extensions,
-              :byteweight_before, :byteweight_after
+              :byteweight_before, 
+              :byteweight_after
 
 
   def backup_dir
@@ -83,27 +85,49 @@ class Compressor
   def process(inputpath,cmd=nil)      
      output_path =$cm.get_target_path(inputpath)
 
-     system( cmd.gsub('%executable%', $cm.bin_paths[ @default_command ]).
+     cl= cmd.gsub('%executable%', $cm.bin_paths[ @default_command ]).
                  gsub('%input%',inputpath).
                  gsub('%output%', output_path)
-     )
+     system(cl)
+
      output_path
   end
 
   def compress
-    @input_files=collect_filepaths
-    @input_files=[concatenate_files] if @concatenate_input
+    files=@input_files=collect_filepaths
+    files=[concatenate_files] if @concatenate_input
 
     cmd= (@commands.empty?)? nil : @commands[ @default_command ]
 
-    @input_files.each do |path|
+    files.each do |path|
       output_path=process(path,cmd)
 
       #  The default setting is that files are simply overwritten. However, when using string concatenation,
       #  the output file will be different the input ones..
       
-      #@byteweight_after += File.size( output_path )
+      if File.exists?(path) 
+        before_size=File.size(path)
+        else
+        # this is not a path, but a string 
+        # concatenated from a list of files..
 
+        before_size=0
+        path.each_byte{|b| before_size+=1}
+      end
+      after_size=File.size(output_path)
+
+
+      # if the compressed file is bigger than the original one, copy the original in the target dir
+      if after_size < before_size 
+          puts "byteweight before #{before_size} after: #{after_size}"
+          @byteweight_after+=after_size
+      else
+          puts "AAARG!!! output(#{after_size}) > input(#{before_size}), rolling back to #{path} "  
+          FileUtils.cp(path,output_path)
+          @byteweight_after+=before_size
+      end
+      
+      
     end  
   end
 
