@@ -1,6 +1,5 @@
 require 'conf/environment.rb'
 
-
 config=<<EOF
 bin_paths:
    - pngcrush: /usr/bin/pngcrush
@@ -8,12 +7,12 @@ bin_paths:
    - gifsicle: /usr/bin/gifsicle
 EOF
 
-File.open('specs/test_dir/sqwidgetconfig.yml','w') do |f|
+File.open('specs/test_dir/.sqwidgetconfig.yml','w') do |f|
   f.write(config)
+  f.close
 end
 
 ConfManager.new('specs/test_dir')
-
 
 [ CssCompressor.new,
   PngCompressor.new,
