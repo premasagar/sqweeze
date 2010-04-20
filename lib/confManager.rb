@@ -1,21 +1,42 @@
 class ConfManager  
 
-  def initialize(source_dir=nil)
+  def initialize(source_dir,target_dir='build')
     @include_files=[]
     @exclude_files=[]
     @files=[]
     @bin_paths={}
     @source_dir=source_dir
+    @target_dir=target_dir
 
     @cm=nil
 
     parse_conf
+    create_target_dirtree
+
 
     # globalize self..
     $cm=self
   
   end 
-  attr_reader :bin_paths,:files,:include_files,:exclude_files,:source_dir,:favourite_js_compressor
+  attr_reader :bin_paths,:files,:include_files,:exclude_files,
+              :target_dir,:source_dir,:favourite_js_compressor
+  
+ 
+  # recreate the directory structure of the source directory into the target directory
+
+  def create_target_dirtree
+    get_dirs.each  do |dir|
+      FileUtils.mkdir_p( get_target_path(dir)) 
+    end
+  end
+
+  # remap a filepath from source to target directory
+
+  def get_target_path(infile_path)
+   infile_path.gsub( Regexp.new("^#{@source_dir}"), @target_dir)
+  end
+
+
   def mkpath(pattern)
     @source_dir.to_a.push(pattern).join('/')
   end
@@ -54,7 +75,6 @@ class ConfManager
              else 
                get_files
     end
-    
 
     # always exclude files explicitly blacklisted by the user 
 
@@ -73,6 +93,9 @@ class ConfManager
 
     }.flatten
   end
-
+  
+  def get_dirs
+    Dir[mkpath('**/*')].select{|f| File.directory?(f)}
+  end
 
 end

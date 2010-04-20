@@ -23,5 +23,7 @@ describe PngCompressor do
      it "Should backup the project directory" do
         File.exists?(@c.bkupdir_path).should be_true
      end 
+
+  
   end
 end

@@ -24,13 +24,16 @@ describe ConfManager do
     $cm.should be_a(ConfManager)
   end
 
+  
+
+
   it "Should select the list of files provided by the user if the include: section of the .sqwidgetconfig is not empty" do
    extra_lines= ["include:","- js/**/*.js",'- color/**/*.png']
    write_configfile(extra_lines[0..1].join("\n"))
-   ConfManager.new('test_dir').should have(8).files
+   ConfManager.new('test_dir').should have(3).files
 
    write_configfile(extra_lines.join("\n"))
-   ConfManager.new('test_dir').should have(10).files
+   ConfManager.new('test_dir').should have(5).files
 
   end
 
@@ -47,7 +50,7 @@ describe ConfManager do
   it "Should always exclude the files specified by the user in the .sqwidgetconfig exclude section " do
     write_configfile(["exclude:","- js/**/*.js"].join("\n"))
     project_file_count= Dir['test_dir/**/*'].reject{|f| File.directory?(f)}.size
-    ConfManager.new('test_dir').should have(project_file_count - 8).files
+    ConfManager.new('test_dir').should have(46).files
   end
 
  end

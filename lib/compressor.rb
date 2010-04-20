@@ -19,15 +19,25 @@ class Compressor
      @commands={}
 
      # set the default library/command to use for this compressor.
+    
 
      @default_command=nil
 
      @concatenate_input=false
      
-     @bkupdir_path=$cm.mkpath("../#{File.basename($cm.source_dir)}.backup")
-     backup_dir if not File.exists?(@bkupdir_path) 
+#     @bkupdir_path=$cm.mkpath("../#{File.basename($cm.source_dir)}.backup")
+#     backup_dir if not File.exists?(@bkupdir_path) 
+
+     # store the overall byte weight of the assets, before compressions
+     
+     @byteweight_before = collect_filepaths.inject(0){|sum,f| sum+File.size(f)}
+     @byteweight_after = 0
   end
-  attr_reader :bkupdir_path
+
+
+  attr_reader :bkupdir_path, 
+              :input_file_extensions,
+              :byteweight_before, :byteweight_after
 
 
   def backup_dir
@@ -39,14 +49,13 @@ class Compressor
   # Set a candidate command to be invoked by the compressor
   def set_command(libname,command)
 
-
     raise "missing library #{libname}" unless  $cm.bin_paths.keys.include?(libname)
     @default_command=libname if @commands.empty?
     @commands[libname]=command
   end
 
 
-  def filextension2regexpstr(ext=@input_file_extension)
+  def filextension2regexpstr(ext=@input_file_extensions)
      if @input_file_extensions.is_a?(Array) and @input_file_extensions.size > 1
         "(#{@input_file_extensions.collect{|ext|"\.#{ext}"}.join('|')})$"
        else
@@ -66,31 +75,35 @@ class Compressor
 #     "#{File.dirname(inputpath)}/#{@output_filename }.#{@output_extension}"
 #  end
   
-  def process(inputpath,cmd=nil)      
-    
-     # execute pre-compression hook
-     preprocess(inputpath) if self.methods.include?('before_compress') 
-     
-     puts cmd.gsub('%executable%', $cm.bin_paths[ @default_command ]).
-         gsub('%input%',inputpath).
-         gsub('%output%',inputpath)
 
-  
-     # execute pre-compression hook
-     postprocess(inputpath) if self.methods.include?('after_compress')
+
+  # Override this method to change the default compression behaviour
+
+
+  def process(inputpath,cmd=nil)      
+     output_path =$cm.get_target_path(inputpath)
+
+     system( cmd.gsub('%executable%', $cm.bin_paths[ @default_command ]).
+                 gsub('%input%',inputpath).
+                 gsub('%output%', output_path)
+     )
+     output_path
   end
 
-
-  def compress()
-
+  def compress
     @input_files=collect_filepaths
     @input_files=[concatenate_files] if @concatenate_input
 
     cmd= (@commands.empty?)? nil : @commands[ @default_command ]
 
-     
     @input_files.each do |path|
-      process(path,cmd)
+      output_path=process(path,cmd)
+
+      #  The default setting is that files are simply overwritten. However, when using string concatenation,
+      #  the output file will be different the input ones..
+      
+      #@byteweight_after += File.size( output_path )
+
     end  
   end
 

@@ -14,10 +14,13 @@ end
 
 ConfManager.new('specs/test_dir')
 
-[ 
-#  PngCompressor.new,
-#  GifCompressor.new,
-  JsCompressor.new
-#  CssCompressor.new
+[ PngCompressor.new,
+  GifCompressor.new,
+  JsCompressor.new,
+  CssCompressor.new
+].each do |cmp| 
+  
+  cmp.compress
 
-].each{|cmp| cmp.compress}
+
+end
