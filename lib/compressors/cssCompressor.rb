@@ -17,10 +17,17 @@ class CssCompressor < Compressor
     MAX_IMAGE_SIZE = 32768
 
     # CSS asset-embedding regexes for URL rewriting.
+    
     EMBED_DETECTOR = /url\(['"]?([^\s)]+\.[a-z]+)(\?\d+)?['"]?\)/
-    #EMBEDDABLE = /[\A\/]embed\//
-    #EMBED_REPLACER = /url\(__EMBED__([^\s)]+)(\?\d+)?\)/  
-  
+    EMBED_REPLACER = /url\(__EMBED__([^\s)]+)(\?\d+)?\)/  
+
+    # MHTML file constants.
+    MHTML_START = "/*\r\nContent-Type: multipart/related; boundary=\"SQWIDGET_MHTML_SEPARATOR\"\r\n\r\n"
+    MHTML_SEPARATOR = "--SQWIDGET_MHTML_SEPARATOR\r\n"
+    MHTML_END = "*/\r\n"
+
+
+
   def initialize
     super('css')  
 
@@ -28,6 +35,10 @@ class CssCompressor < Compressor
     @concatenate_input=true    
     @embed_imgs=true
     @concatenated_file=nil
+    
+    # This is filled after the uridata are computer
+    @assets={}
+
     # TODO fonts..
   end
 
@@ -37,9 +48,8 @@ class CssCompressor < Compressor
     compressed_output=YUI::CssCompressor.new.compress(input_str)
     
     if @embed_imgs
-      puts "we should embed images here.."
       embed_datauris( compressed_output )   
-      #embed_mhtml( compressed_output ) 
+      embed_mhtml( compressed_output ) 
       # note: 
       # this is inconsistent with sending out of a single output filepath
       # as in this case we are producing two output files rather than only one.      
@@ -51,21 +61,52 @@ class CssCompressor < Compressor
 
   
   private 
-
+  
+  def mhtml_location(path)
+    p=Pathname.new(path)
+    
+    p.relative_path_from( Pathname.new($cm.target_dir)) 
+  end
 
 
   def embed_datauris(compressed_css)
-    compressed_css.gsub!(EMBED_DETECTOR) do |url|
-       "url(\"data:#{mime_type($1)};charset=utf-8;base64,#{encoded_contents($1)}\")"
-    end  
-    compressed_css
-    write_file(compressed_css,"#{$cm.target_dir}/all.min-datauri.css")
+    out=compressed_css.gsub(EMBED_DETECTOR) do |url|
+       compressed_asset_path=remap_filepath($1)
+
+       base64_asset=encoded_contents( compressed_asset_path ) #unless File.size(compressed_asset_path > MAX_IMAGE_SIZE)
+
+       # label the image using its parent-directory and its basename..
+       
+       @assets[ mhtml_location(compressed_asset_path)] = base64_asset 
+
+       "url(\"data:#{mime_type($1)};charset=utf-8;base64,#{base64_asset}\")"
+    end
+
+    
+    write_file(out,"#{$cm.target_dir}/all.min.datauri.css")
   end
 
-  def embed_into_mhtml  
+  def embed_mhtml(compressed_css)
+    mhtml="/*\nContent-Type: multipart/related; boundary=\"#{MHTML_SEPARATOR}\""
+    @assets.each do |mhtml_loc,base64|
+
+    mhtml <<"
+#{MHTML_SEPARATOR}  
+Content-location: #{ mhtml_loc  }
+Content-Type: #{mime_type(mhtml_loc)}
+Content-Transfer-Encoding:base64
+
+#{base64}\n"
+     
+    end
+
+    mhtml << "/*\n\n"
+    mhtml << compressed_css.gsub(EMBED_DETECTOR) do |css|
+       "url( mhtml:!#{ mhtml_location( remap_filepath( $1 ))} )"
+    end
+    
+    write_file(mhtml,"#{$cm.target_dir}/all.min.mhtml.css")
   end
-
-
 
   def write_file(fbody,fpath)
     File.open(fpath,'w') do |f|
@@ -79,7 +120,6 @@ class CssCompressor < Compressor
       EMBED_MIME_TYPES[File.extname(asset_path)]
   end
   
-
 
   # if the resource is an absulte URI or local filepath, fine..
   # Otherwise, if the resource is a relative url in the source dir, try 
@@ -96,18 +136,12 @@ class CssCompressor < Compressor
     end
   end
   
-  
-
-
-  
   # Return the Base64-encoded contents of an asset on a single line.
   
   def encoded_contents(asset_path)
-      data = File.open(remap_filepath(asset_path), 'rb'){|f| f.read }
+      data = File.open(asset_path, 'rb'){|f| f.read }
       Base64.encode64(data).gsub(/\n/, '')
   end
 
-
 end
-
 
