@@ -14,7 +14,8 @@ end
 
 ConfManager.new('specs/test_dir')
 
-[ PngCompressor.new,
+[ 
+  PngCompressor.new,
   GifCompressor.new,
   JsCompressor.new,
   CssCompressor.new
@@ -23,7 +24,7 @@ ConfManager.new('specs/test_dir')
 
   puts "initialising.."
   cmp.compress
-  puts "compressing #{cmp.collect_filepaths.size } #{cmp.input_file_extensions.to_s.upcase} files from #{ cmp.byteweight_before} to #{cmp.byteweight_after} bytes"
+ # puts "compressing #{cmp.collect_filepaths.size } #{cmp.input_file_extensions.to_s.upcase} files from #{ cmp.byteweight_before} to #{cmp.byteweight_after} bytes"
 
 
 

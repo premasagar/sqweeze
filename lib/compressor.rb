@@ -71,6 +71,17 @@ class Compressor
     $cm.files.select{|path| path =~ Regexp.new(exp_str,true)  }
   end
 
+  # find a file into the target directory
+  # endpath is a string containing parent directory and file name 
+  # (e.g imgs/separator.png)
+
+  def find_file_in_targetdir(endpath)
+    pattern=  [$cm.target_dir,"**/*#{File.extname(endpath)}"].join('/')
+  
+    Dir[pattern].
+        find{|path| path =~ Regexp.new("#{endpath}$")}
+  end
+
   
 #  def get_output_filepath(inputpath)
 #     raise 'Warning.. file #{inputpath} does not exist' unless File.exists?(inputpath)
@@ -80,7 +91,6 @@ class Compressor
 
 
   # Override this method to change the default compression behaviour
-
 
   def process(inputpath,cmd=nil)      
      output_path =$cm.get_target_path(inputpath)
@@ -104,13 +114,17 @@ class Compressor
 
       #  The default setting is that files are simply overwritten. However, when using string concatenation,
       #  the output file will be different the input ones..
-      
+  
+      trace(path,output_path) unless File.extname(output_path) == '.css' 
+    end  
+  end
+
+  def trace(path,output_path)
       if File.exists?(path) 
         before_size=File.size(path)
         else
         # this is not a path, but a string 
         # concatenated from a list of files..
-
         before_size=0
         path.each_byte{|b| before_size+=1}
       end
@@ -126,10 +140,8 @@ class Compressor
           FileUtils.cp(path,output_path)
           @byteweight_after+=before_size
       end
-      
-      
-    end  
   end
+
 
   def concatenate_files
     @input_files.collect{|f|File.open(f,'r').read}.join("\n")

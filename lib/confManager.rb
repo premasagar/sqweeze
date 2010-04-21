@@ -13,7 +13,6 @@ class ConfManager
     parse_conf
     create_target_dirtree
 
-
     # globalize self..
     $cm=self
   
@@ -37,8 +36,8 @@ class ConfManager
   end
 
 
-  def mkpath(pattern)
-    @source_dir.to_a.push(pattern).join('/')
+  def mkpath(pattern,dir=@source_dir)
+    dir.to_a.push(pattern).join('/')
   end
   
   
@@ -62,8 +61,6 @@ class ConfManager
    
     @favourite_js_compressor = ( conf['favourite_js_compressor'] == :closure) ?  :closure : :yui
   
-
-
     @include_files,@exclude_files = conf['include'].to_a, conf['exclude'].to_a
 
     # unless the user defined file inclusion list is empty, select only the files specified by the user.

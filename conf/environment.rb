@@ -8,6 +8,9 @@ require 'yui/compressor'
 require 'closure-compiler'
 require 'compressor'
 require 'yaml'
+require 'base64'
+require 'uri'
+require 'pathname'
 require 'pp'
 
 Dir[$squidget_dir+'/lib/compressors/*'].entries.each do |fname|
