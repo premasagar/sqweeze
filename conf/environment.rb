@@ -2,6 +2,7 @@ $squidget_dir=File.dirname(File.expand_path(__FILE__+'/..'))
 ['lib','lib/compressors','conf'].each{|dir| $LOAD_PATH << $squidget_dir+"/#{dir}"  }
 
 
+require 'singleton'
 require 'confManager'
 require 'rubygems'
 require 'yui/compressor'

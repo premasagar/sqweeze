@@ -1,32 +1,37 @@
 class ConfManager  
-
-  def initialize(source_dir,target_dir='build')
+  include Singleton
+  
+  def initialize
     @include_files=[]
     @exclude_files=[]
     @files=[]
     @bin_paths={}
-    @source_dir=source_dir
-    @target_dir=target_dir
-
-    @cm=nil
-
-    parse_conf
-    create_target_dirtree
-
-    # globalize self..
-    $cm=self
+    @source_dir=nil
+    @target_dir=nil
   
   end 
   attr_reader :bin_paths,:files,:include_files,:exclude_files,
               :target_dir,:source_dir,:favourite_js_compressor
   
+
+  def set_directories(source,target='build')
+    @source_dir=source
+    @target_dir=target
+
+    parse_conf
+    create_target_dirtree    
+  end
+ 
+ 
  
   # recreate the directory structure of the source directory into the target directory
 
   def create_target_dirtree
+    FileUtils.mkdir( @target_dir ) unless File.directory?(@target_dir)
     get_dirs.each  do |dir|
       FileUtils.mkdir_p( get_target_path(dir)) 
     end
+    
   end
 
   # remap a filepath from source to target directory
@@ -36,7 +41,7 @@ class ConfManager
   end
 
 
-  def mkpath(pattern,dir=@source_dir)
+  def mkpath(pattern,dir=@source_dir) 
     dir.to_a.push(pattern).join('/')
   end
   

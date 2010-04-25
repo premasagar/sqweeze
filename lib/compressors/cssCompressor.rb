@@ -1,3 +1,7 @@
+
+# TODO: acknowledge that this class shameslessly borrows from 
+#       Jammit 
+
 class CssCompressor < Compressor
 
    # Mapping from extension to mime-type of all embeddable assets.
@@ -10,16 +14,12 @@ class CssCompressor < Compressor
       '.tiff' => 'image/tiff',
       '.ttf' => 'font/truetype',
       '.otf' => 'font/opentype'
-    }
-
- 
+    } 
     # 32k maximum size for embeddable images (an IE8 limitation).
     MAX_IMAGE_SIZE = 32768
 
-    # CSS asset-embedding regexes for URL rewriting.
-    
+    # CSS asset-embedding regexes for URL rewriting.    
     EMBED_DETECTOR = /url\(['"]?([^\s)]+\.[a-z]+)(\?\d+)?['"]?\)/
-    EMBED_REPLACER = /url\(__EMBED__([^\s)]+)(\?\d+)?\)/  
 
     # MHTML file constants.
     MHTML_START = "/*\r\nContent-Type: multipart/related; boundary=\"SQWIDGET_MHTML_SEPARATOR\"\r\n\r\n"
@@ -31,25 +31,26 @@ class CssCompressor < Compressor
   def initialize
     super('css')  
 
-    # TODO: handle non-concatenated input
     @concatenate_input=true    
     @embed_imgs=true
     @concatenated_file=nil
     
-    # This is filled after the uridata are computer
+    # This hash is populated while generating the data uris
+    # in order to be reused later in the MHTML file 
+
     @assets={}
 
     # TODO fonts..
   end
 
-
   def process(input_str,cmd=nil)
-    fout= (@concatenate_input)? "#{$cm.target_dir}/css/all.min.css" : $cm.get_target_path(inputpath)
+    fout= (@concatenate_input)? "#{@cm.target_dir}/css/all.min.css" : @cm.get_target_path(inputpath)
     compressed_output=YUI::CssCompressor.new.compress(input_str)
     
     if @embed_imgs
       embed_datauris( compressed_output )   
-      embed_mhtml( compressed_output ) 
+      #embed_mhtml( compressed_output ) 
+
       # note: 
       # this is inconsistent with sending out of a single output filepath
       # as in this case we are producing two output files rather than only one.      
@@ -63,28 +64,29 @@ class CssCompressor < Compressor
   private 
   
   def mhtml_location(path)
-    p=Pathname.new(path)
-    
-    p.relative_path_from( Pathname.new($cm.target_dir)) 
+    p=Pathname.new(path) 
+    p.relative_path_from( Pathname.new(@cm.target_dir)) 
   end
-
 
   def embed_datauris(compressed_css)
     out=compressed_css.gsub(EMBED_DETECTOR) do |url|
-       compressed_asset_path=remap_filepath($1)
-
-       base64_asset=encoded_contents( compressed_asset_path ) #unless File.size(compressed_asset_path > MAX_IMAGE_SIZE)
-
-       # label the image using its parent-directory and its basename..
-       
-       @assets[ mhtml_location(compressed_asset_path)] = base64_asset 
-
-       "url(\"data:#{mime_type($1)};charset=utf-8;base64,#{base64_asset}\")"
+    compressed_asset_path=remap_filepath($1)
+       if compressed_asset_path and File.exists?(compressed_asset_path)
+         base64_asset=encoded_contents( compressed_asset_path ) unless File.size(compressed_asset_path) > MAX_IMAGE_SIZE
+         # label the image using its parent-directory and its basename..
+         @assets[ mhtml_location(compressed_asset_path)] = base64_asset 
+         "url(\"data:#{mime_type($1)};charset=utf-8;base64,#{base64_asset}\")"
+       else
+         "url(#{$1})"
+       end
     end
 
     
-    write_file(out,"#{$cm.target_dir}/all.min.datauri.css")
+    write_file(out,"#{@cm.target_dir}/all.min.datauri.css")
   end
+
+
+
 
   def embed_mhtml(compressed_css)
     mhtml="/*\nContent-Type: multipart/related; boundary=\"#{MHTML_SEPARATOR}\""
@@ -105,8 +107,9 @@ Content-Transfer-Encoding:base64
        "url( mhtml:!#{ mhtml_location( remap_filepath( $1 ))} )"
     end
     
-    write_file(mhtml,"#{$cm.target_dir}/all.min.mhtml.css")
+    write_file(mhtml,"#{@cm.target_dir}/all.min.mhtml.css")
   end
+
 
   def write_file(fbody,fpath)
     File.open(fpath,'w') do |f|
@@ -121,7 +124,7 @@ Content-Transfer-Encoding:base64
   end
   
 
-  # if the resource is an absulte URI or local filepath, fine..
+  # if the resource is an absolute URL fine, 
   # Otherwise, if the resource is a relative url in the source dir, try 
   # to map it to its compressed version in the target directory
 
@@ -139,7 +142,7 @@ Content-Transfer-Encoding:base64
   # Return the Base64-encoded contents of an asset on a single line.
   
   def encoded_contents(asset_path)
-      data = File.open(asset_path, 'rb'){|f| f.read }
+      data = open(asset_path, 'rb'){|f| f.read }
       Base64.encode64(data).gsub(/\n/, '')
   end
 

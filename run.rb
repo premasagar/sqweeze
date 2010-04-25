@@ -7,24 +7,23 @@ bin_paths:
    - gifsicle: /usr/bin/gifsicle
 EOF
 
-File.open('specs/test_dir/.sqwidgetconfig.yml','w') do |f|
+File.open('agregado/.sqwidgetconfig.yml','w') do |f|
   f.write(config)
   f.close
 end
 
-ConfManager.new('specs/test_dir')
+cm=ConfManager.instance
+cm.set_directories('agregado','agregado_build')
 
-[ 
-  PngCompressor.new,
+[ PngCompressor.new,
   GifCompressor.new,
+  JpegCompressor.new,
   JsCompressor.new,
   CssCompressor.new
 ].each do |cmp| 
 
-
   puts "initialising.."
   cmp.compress
- # puts "compressing #{cmp.collect_filepaths.size } #{cmp.input_file_extensions.to_s.upcase} files from #{ cmp.byteweight_before} to #{cmp.byteweight_after} bytes"
 
 
 
