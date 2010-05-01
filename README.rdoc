@@ -1,0 +1,27 @@
+== Sqweeze 
+A command line web asset optimisation tool. 
+
+=== Features
+
+_Sqweeze_ cuts the unnecessary bytes out of your web assets, helping you delivering your web project more fastly and efficiently. 
+With a little help from a number of well known open source third party tools, _Sqweeze_ does the following:
+
+* Lossless compresses .PNG, .JPEG and .GIF image assets. 
+* Compresses and concatenates into single files multiple Stylesheets and Javascript files.
+* Embeds the compressed assets referenced into the stylesheet, using using {Data-uris}[https://developer.mozilla.org/En/The_data_URL_scheme] (for proper browsers and IE8) and {MHTML}[http://en.wikipedia.org/wiki/MHTML] (for IE6-7). 
+* Finally, it provides some basic functionality to linking the compressed Javascript and CSS files back to the document. 
+
+=== Installing it
+
+Sqweeze relies on a few command-line image compression tools, namely Pngcrush, Jpegtrain, and Gifsicle, which have to be installed first. 
+On an Ubuntu box, you can do this by running
+ 
+  apt-get install pngcrush gifsicle libjpeg-progs  
+
+Mac OSX users can install the first two as Macport packages. The third (part of libjpeg) instead, has to be compiled manually ([some instructions can be found here]{ http://www.phpied.com/installing-jpegtran-mac-unix-linux/ }). However, Jpegtrain will not be needed as long as you do not have Jpeg files into your project. 
+
+
+
+
+
+   
