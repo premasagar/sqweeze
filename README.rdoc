@@ -9,7 +9,8 @@ With a little help from a number of well known open source third party tools, _S
 * Lossless compresses .PNG, .JPEG and .GIF image assets. 
 * Compresses and concatenates into single files multiple Stylesheets and Javascript files.
 * Embeds the compressed assets referenced into the stylesheet, using using {Data-uris}[https://developer.mozilla.org/En/The_data_URL_scheme] (for proper browsers and IE8) and {MHTML}[http://en.wikipedia.org/wiki/MHTML] (for IE6-7). 
-* Finally, it provides some basic functionality to linking the compressed Javascript and CSS files back to the document. 
+* Finally, it provides some basic functionality for linking the compressed Javascript and CSS just created to the main HTML document, 
+  and removing automatically the links pointing to the old uncompressed ones.  
 
 === Installing it
 
@@ -25,5 +26,15 @@ Once installed these, you can install sqweeze using rubygems
 
  gem install sqweeze
 
+=== Configuration
 
-   
+When run for the first time, the script creates a config file in the user's $HOME directory and sets therein the default paths of command line tools such as pngcrush and friends. 
+ 
+ # file $HOME/.sqweeze.yml
+
+ bin_paths:
+    - pngcrush: /usr/bin/pngcrush
+    - jpegtran: /usr/bin/jpegtran
+    - gifsicle: /usr/bin/gifsicle
+ 
+If you have installed these anywhere else than in +/usr/bin+, you will have to edit this file so that sqweeze can find them.    
