@@ -10,7 +10,6 @@ $LOAD_PATH.unshift(SQWEEZE_DIR) unless $LOAD_PATH.include?(SQWEEZE_DIR)
 ['lib','lib/compressor', 'lib/compilers'].each do |sub_dir|
   $LOAD_PATH.unshift("#{SQWEEZE_DIR}/#{sub_dir}")
 end
-pp $LOAD_PATH
 
 %w[sqweezeUtils confManager compressor domCompiler
    compressors/cssCompressor compressors/jsCompressor compressors/gifCompressor compressors/pngCompressor compressors/jpegCompressor 
