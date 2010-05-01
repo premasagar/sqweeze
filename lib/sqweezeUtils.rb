@@ -11,8 +11,6 @@ module SqweezeUtils
       '.ttf' => 'font/truetype',
       '.otf' => 'font/opentype'
   } 
-
-  
   
   def write_file(fbody,fpath)
     File.open(fpath,'w') do |f|
@@ -23,10 +21,9 @@ module SqweezeUtils
   
   # Grab the mime-type of an asset, by filename.
   def mime_type(asset_path)
-      EMBED_MIME_TYPES[File.extname(asset_path)]
+      EMBED_MIME_TYPES[File.extname(asset_path)] if asset_path
   end
   
-
   # Remaps a file in the source directory to its compressed 
   # version in the target directory
   #

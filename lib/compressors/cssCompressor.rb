@@ -1,20 +1,17 @@
-
-# TODO: acknowledge that this class shameslessly borrows from 
-#       Jammit 
+# Compresses stylesheets using the YUI compressor, creating three new files in the target directory:
+# [<code>stylesheets.min.css</code>]
+#                  compressed and concatenated stylesheets without embedded assets (suitable for all browsers).
+#
+# [<code>stylesheets.datauir.css</code>]
+#                  compressed and concatenated stylesheets with assets embedded as data-uris (suitable for both Webkit and Geko based browser, and ie8). 
+#
+# [<code>stylesheets.mhtml.css</code>]
+#                  compressed and concatenated stylesheets with assets embedded as data-uris (suitable for IE6 and IE7).
+#
+# *Note*: some of the methods used by this class are copied from Jash kenas's excellent {Jammit}[http://github.com/documentcloud/jammit/], an asset optimisation tool for Rails. 
 
 class CssCompressor < Compressor
-
-   # Mapping from extension to mime-type of all embeddable assets.
-    EMBED_MIME_TYPES = {
-      '.png' => 'image/png',
-      '.jpg' => 'image/jpeg',
-      '.jpeg' => 'image/jpeg',
-      '.gif' => 'image/gif',
-      '.tif' => 'image/tiff',
-      '.tiff' => 'image/tiff',
-      '.ttf' => 'font/truetype',
-      '.otf' => 'font/opentype'
-    } 
+  
     # 32k maximum size for embeddable images (an IE8 limitation).
     MAX_IMAGE_SIZE = 32768
 
@@ -22,47 +19,37 @@ class CssCompressor < Compressor
     EMBED_DETECTOR = /url\(['"]?([^\s)]+\.[a-z]+)(\?\d+)?['"]?\)/
 
     # MHTML file constants.
-    MHTML_START = "/*\r\nContent-Type: multipart/related; boundary=\"SQWIDGET_MHTML_SEPARATOR\"\r\n\r\n"
-    MHTML_SEPARATOR = "--SQWIDGET_MHTML_SEPARATOR\r\n"
-    MHTML_END = "*/\r\n"
-
-
+    MHTML_START = "/*\nContent-Type: multipart/related; boundary=\"SQWEEZED_ASSET\"\n"
+    MHTML_SEPARATOR= "--SQWEEZED_ASSET"
+    MHTML_END = "*/\n"
 
   def initialize
     super('css')  
-
-    @concatenate_input=true    
-    @embed_imgs=true
-    @concatenated_file=nil
     
+    @concatenate_input=true    
+    @concatenated_file=nil   
     # This hash is populated while generating the data uris
     # in order to be reused later in the MHTML file 
-
     @assets={}
-
     # TODO fonts..
   end
 
   def process(input_str,cmd=nil)
-    fout= (@concatenate_input)? "#{@cm.target_dir}/css/all.min.css" : @cm.get_target_path(inputpath)
+    fout= (@concatenate_input)? "#{@cm.target_dir}/all.min.css" : @cm.get_target_path(inputpath)
     compressed_output=YUI::CssCompressor.new.compress(input_str)
     
-    if @embed_imgs
-      embed_datauris( compressed_output )   
-      #embed_mhtml( compressed_output ) 
-
-      # note: 
-      # this is inconsistent with sending out of a single output filepath
-      # as in this case we are producing two output files rather than only one.      
-    else
-      write_file(compressed_output,fout) 
+    unless compressed_output.chomp.empty?
+     write_file(compressed_output,"#{@cm.target_dir}/stylesheets.min.css") 
+     embed_datauris( compressed_output )     
+     embed_mhtml( compressed_output ) if @cm.get_conf(:mhtml_root) 
     end
+    # this return is pointless
     fout
   end
 
   
-  private 
   
+  private 
   def mhtml_location(path)
     p=Pathname.new(path) 
     p.relative_path_from( Pathname.new(@cm.target_dir)) 
@@ -71,79 +58,45 @@ class CssCompressor < Compressor
   def embed_datauris(compressed_css)
     out=compressed_css.gsub(EMBED_DETECTOR) do |url|
     compressed_asset_path=remap_filepath($1)
-       if compressed_asset_path and File.exists?(compressed_asset_path)
-         base64_asset=encoded_contents( compressed_asset_path ) unless File.size(compressed_asset_path) > MAX_IMAGE_SIZE
-         # label the image using its parent-directory and its basename..
-         @assets[ mhtml_location(compressed_asset_path)] = base64_asset 
-         "url(\"data:#{mime_type($1)};charset=utf-8;base64,#{base64_asset}\")"
+      mime_t=mime_type(compressed_asset_path)
+      if compressed_asset_path and File.exists?(compressed_asset_path) and File.size(compressed_asset_path) < MAX_IMAGE_SIZE and mime_t
+         base64_asset=encoded_contents( compressed_asset_path ) 
+         $log.debug("file:#{compressed_asset_path}; mime-type: #{mime_type($1)}#")
+         # label the image
+         @assets[ compressed_asset_path ] = base64_asset 
+         "url(\"data:#{mime_t};charset=utf-8;base64,#{base64_asset}\")"
        else
          "url(#{$1})"
-       end
+      end
     end
 
     
-    write_file(out,"#{@cm.target_dir}/all.min.datauri.css")
+    write_file(out,"#{@cm.target_dir}/stylesheets.min.datauri.css")
   end
-
-
 
 
   def embed_mhtml(compressed_css)
-    mhtml="/*\nContent-Type: multipart/related; boundary=\"#{MHTML_SEPARATOR}\""
+    mhtml= MHTML_START
+   
     @assets.each do |mhtml_loc,base64|
-
     mhtml <<"
 #{MHTML_SEPARATOR}  
 Content-location: #{ mhtml_loc  }
-Content-Type: #{mime_type(mhtml_loc)}
 Content-Transfer-Encoding:base64
 
 #{base64}\n"
-     
     end
-
-    mhtml << "/*\n\n"
+    mhtml << "*/\n"
     mhtml << compressed_css.gsub(EMBED_DETECTOR) do |css|
-       "url( mhtml:!#{ mhtml_location( remap_filepath( $1 ))} )"
+      compressed_asset_path=remap_filepath($1)
+      if compressed_asset_path
+       "url(mhtml:#{@cm.get_conf(:mhtml_root).gsub(/\/$/,'')}/stylesheets.min.mhtml.css!#{mhtml_location( compressed_asset_path)})"
+        else
+        "url(#{$1})"
+      end
     end
     
-    write_file(mhtml,"#{@cm.target_dir}/all.min.mhtml.css")
-  end
-
-
-  def write_file(fbody,fpath)
-    File.open(fpath,'w') do |f|
-      f.write(fbody)
-      f.close
-    end
-  end
-
-  # Grab the mime-type of an asset, by filename.
-  def mime_type(asset_path)
-      EMBED_MIME_TYPES[File.extname(asset_path)]
-  end
-  
-
-  # if the resource is an absolute URL fine, 
-  # Otherwise, if the resource is a relative url in the source dir, try 
-  # to map it to its compressed version in the target directory
-
-  def remap_filepath(path)
-    
-    path=Pathname.new(path)
-    is_absolute = URI.parse(path).absolute? or path.absolute?
-    unless is_absolute
-       find_file_in_targetdir( [path.parent, path.basename].join('/'))
-      else 
-       path.to_s
-    end
-  end
-  
-  # Return the Base64-encoded contents of an asset on a single line.
-  
-  def encoded_contents(asset_path)
-      data = open(asset_path, 'rb'){|f| f.read }
-      Base64.encode64(data).gsub(/\n/, '')
+    write_file(mhtml,"#{@cm.target_dir}/stylesheets.min.mhtml.css")
   end
 
 end

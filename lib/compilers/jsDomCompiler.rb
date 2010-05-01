@@ -1,14 +1,10 @@
 class JsDomCompiler < DOMCompiler
   
   def compile
-    puts "compiling js"
-
     iterate_over('script[@src]') do |element, doc | 
+      
       res_body=get_resource(element.get_attribute('src'))
-  
-      puts element.get_attribute('src')
       element.remove_attribute('src')
-
       # do the YUI/CLOSURE thing here
       element.innerHTML=js_cdata(res_body,:compress)
     end

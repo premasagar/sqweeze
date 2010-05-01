@@ -10,8 +10,7 @@ class AssetLinker < DOMCompiler
     dom_documents.each do |path|
       # Append concatenated JavaScript file.
       doc = Hpricot(open(path))
-      
-      doc.search('head').append( "<script type='text/javascript' src='javascripts.min.js'></script>") 
+      doc.search(@cm.get_conf(:append_scripts_to).to_s.downcase).append( "<script type='text/javascript' src='javascripts.min.js'></script>") 
       
 stylesheets_html=<<EOF     
       <!--[if lte IE 8]>

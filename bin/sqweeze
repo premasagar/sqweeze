@@ -1,14 +1,24 @@
 #! /usr/bin/env ruby
-
+# rubygems
 %w[rubygems yui/compressor closure-compiler hpricot].each{|lib| require lib}
-%w[ singleton yaml base64 open-uri pathname optparse].each{|lib| require lib}
+# ruby standard library
+%w[logger singleton yaml base64 open-uri pathname optparse].each{|lib| require lib}
 
-$:.unshift File.dirname(__FILE__)
+# add lib sub-directories to load path
+SQWEEZE_DIR=File.expand_path( File.dirname(File.dirname(__FILE__)))
+$LOAD_PATH.unshift(SQWEEZE_DIR) unless $LOAD_PATH.include?(SQWEEZE_DIR)
+['lib','lib/compressor', 'lib/compilers'].each do |sub_dir|
+  $LOAD_PATH.unshift("#{SQWEEZE_DIR}/#{sub_dir}")
+end
+pp $LOAD_PATH
 
-%w[lib/sqweezeUtils lib/confManager lib/compressor lib/domCompiler
-   lib/compressors/cssCompressor lib/compressors/jsCompressor lib/compressors/gifCompressor lib/compressors/pngCompressor lib/compressors/jpegCompressor 
-   lib/compilers/cssDomCompiler lib/compilers/jsDomCompiler lib/compilers/assetLinker
+%w[sqweezeUtils confManager compressor domCompiler
+   compressors/cssCompressor compressors/jsCompressor compressors/gifCompressor compressors/pngCompressor compressors/jpegCompressor 
+   compilers/cssDomCompiler compilers/jsDomCompiler compilers/assetLinker
 ].each{|lib| require lib}
+
+
+
 
 options = {}
 op=OptionParser.new do |opts|
@@ -63,7 +73,7 @@ op=OptionParser.new do |opts|
   opts.on('-a','--append_scripts_to=HEAD', "Append script elements to the HEAD or the BODY of the document") do |elm|
     options[:append_scripts_to] = elm
   end  
-  opts.on("-j","--default-js-compressor=YUI", "Default JavaScript compressor ") do |j|
+  opts.on("-j","--default-js-compressor=YUI", "Sets the default JavaScript compressor (can be either YUI or Closure) ") do |j|
     raise OptionParser::InvalidArgument unless ['yui','closure'].include?(j.downcase)
     options[:default_js_compressor] = j.downcase.to_sym
   end
@@ -76,6 +86,8 @@ begin
   Proc.new { puts "source directory #{ARGV[0]} does not exist, please provide a valid path"
              exit(1) }.call unless File.exists?(ARGV[0])
   
+
+  $log=Logger.new( STDERR )
   cm=ConfManager.instance
   cm.prepare(ARGV[0], ARGV[1], options)
    
@@ -89,7 +101,9 @@ begin
   
   case cm.get_conf(:optimisation_strategy)
     when :all_inline
-     puts "do the all in line thing.."
+     puts "not implemented yet.."
+     exit
+
 
     when :all_in_one 
       { :compress_js => JsCompressor.new, 
