@@ -18,17 +18,12 @@ On an Ubuntu box, you can install these by running a single command line
  
   sudo apt-get install pngcrush gifsicle libjpeg-progs  
 
-(Mac OSX users can install the first two as Macport packages. The third (part of libjpeg) instead, has to be 
+(Mac OSX users can install the first two as Macports packages. The third (part of libjpeg) instead, has to be 
 {compiled manually}[http://www.phpied.com/installing-jpegtran-mac-unix-linux]. However, Jpegtrain will not be needed as long as you do not have Jpeg files into your project.)
 
-Download sqweeze's pre-alpha ruby gem, and install it (This assumes you have both ruby and rubygem installed). 
-  
-  wget http://github.com/downloads/premasagar/sqwidget-builder/sqweeze-0.0.1.gem
-  gem install --local sqweeze-0.0.1.gem
+Once installed these, you can install sqweeze using rubygems
 
-
- 
-
+ gem install sqweeze
 
 
    
