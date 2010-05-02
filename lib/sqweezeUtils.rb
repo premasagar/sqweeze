@@ -12,6 +12,7 @@ module SqweezeUtils
       '.otf' => 'font/opentype'
   } 
   
+
   def write_file(fbody,fpath)
     File.open(fpath,'w') do |f|
       f.write(fbody)
@@ -75,12 +76,50 @@ module SqweezeUtils
   # TODO: rewrite this! (it sucks..)
 
   def find_file_in_targetdir(endpath)
-    pattern=  [@cm.target_dir,"**/*#{File.extname(endpath)}"].join('/')
+    pattern=  [get_confManager.target_dir,"**/*#{File.extname(endpath)}"].join('/')
     #puts "searcing for files in #{pattern} ending with #{endpath}"
     Dir[pattern].find{|path| path =~ Regexp.new("#{endpath}$")}
   end
   
+
+  # Prints to STDERR and adds a log entry. 
+  # 
+  # Log entries can be of four types:
+  #
+  # * info
+  # * warning
+  # * error
+  # * debug
+  #
+
+  def notify( message, log_level=:info)
+     raise "Log level #{log_level} does not exist!" unless [:info,:warn,:error,:debug].include?(log_level.to_sym)
+     cm=get_confManager
+   
+     $log=Logger.new( "#{cm.target_dir}/sqweeze.log"  ) unless $log 
+     $log.send(log_level, ansi_nocolour(message)) 
   
-  
-  
+     puts message unless cm.get_conf( "suppress_#{log_level}".to_sym)
+  end  
+
+  def ansi_bold(bold) 
+    "\033[1m#{bold}\033[0m"
+  end
+  def ansi_red(red)
+    "\033[31m#{red}\033[0m"
+  end
+  def ansi_green(green) 
+    "\033[32m#{green}\033[0m"
+  end
+  def ansi_yellow(yellow)
+    "\033[33m#{yellow}\033[0m" 
+  end
+  def ansi_nocolour(text)
+    text.gsub(/\033\[[0-9]{1,2}/,'')
+  end
+
+  private
+  def get_confManager
+     (@cm) ? @cm : self
+  end
 end

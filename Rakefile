@@ -9,7 +9,7 @@ Echoe.new('sqweeze', '0.0.1') do |p|
   p.email          = "and@inventati.org" 
   p.spec_pattern=['spec']
   p.ignore_pattern = ["doc/", 'spec/test_dir_sqweezed',"webapp"]
-  p.runtime_dependencies = ['hpricot >= 0.8.2','closure-compiler >=0.2.2','yui-compressor = 0.9.1']
+  p.runtime_dependencies = ['hpricot >= 0.8.2','closure-compiler >=0.2.2','yui-compressor >= 0.9.1']
 
 end
 

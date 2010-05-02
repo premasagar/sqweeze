@@ -1,8 +1,9 @@
+# Turn link to extenrnal stylesheets into inline style elements..
+
 class CssDomCompiler < DOMCompiler
-  
   def compile
     iterate_over('link[@rel="stylesheet"]') do |elm, doc|
-      next unless elm.has_attribute?('href') and not elm.get_attribute('href').nil?
+      next unless elm.has_attribute?('href') and not elm.get_attribute('href').empty?
       
       fbody=get_resource(elm.get_attribute('href'))
       
@@ -11,7 +12,6 @@ class CssDomCompiler < DOMCompiler
       
       style_html = "<style type=\"text/css\">\n" + css_cdata(fbody,:compress) + '</style>'
       doc.search('head').append(style_html)
- 
     end
   end
 

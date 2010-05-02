@@ -1,7 +1,8 @@
 # Main component for handling Sqweeze's file and command-line configuration parameters
 
 
-class ConfManager  
+class ConfManager 
+  include SqweezeUtils
   include Singleton
   # Class constructor.  
   # 
@@ -17,6 +18,10 @@ class ConfManager
     @files=[]
     
     @conf={
+      :suppress_info => false,
+      :suppress_debug => true,
+      :suppress_warn => false,
+      :suppress_error => false,
       :bin_paths => {},
       :dom_documents => [],
       :include_files => [],
@@ -62,7 +67,8 @@ class ConfManager
     else 
       target 
     end
-        
+    copy_source
+
     write_globalconf
     # Parses the global configuration file in $HOME.
     parse_conf
@@ -76,7 +82,7 @@ class ConfManager
     # Creates the list of the files in the project directory.
     
     list_files
-    copy_source
+
   end
  
   # Copies the source into the target directory.
@@ -123,7 +129,7 @@ class ConfManager
   # Parses configuration files and sets user-defined file inclusion/exlusion patterns.
   
   def parse_conf(configfile="#{ENV['HOME']}/#{@conf_filename}")
-    $log.debug("Parsing configuration file: #{configfile}") 
+    notify("Parsing configuration file: #{configfile}",:debug) 
     conf=YAML::load_file( configfile ) 
      
     bin_paths={}
@@ -150,7 +156,8 @@ class ConfManager
     
     # others..
     %w(include exclude).each {|k| set_conf(k, conf[k].to_a)}
-    %w(optimisation_strategy append_scripts_to).each{|k| set_conf(k,conf[k]) if conf[k]}
+    %w(optimisation_strategy append_scripts_to 
+      suppress_messagess suppress_debug suppress_warnings).each{|k| set_conf(k,conf[k]) if conf[k]}
   end
  
   # Explodes the inclusion/exclusion patterns provided by the user into a list, and populates the @files attribute.   
@@ -170,11 +177,10 @@ class ConfManager
     exclude_files=get_files(get_conf(:exclude))
     
     
-    $log.debug("Excluding #{exclude_files.size} file/s from user list")
+    notify("Excluding #{exclude_files.size} file/s from user list", :debug)
     @files -= exclude_files
-    $log.info("#{@files.size} file/s found")
+    notify("#{@files.size} file/s found", :info)
   end
-
 
   # Get all the files matching an array of patterns 
   #

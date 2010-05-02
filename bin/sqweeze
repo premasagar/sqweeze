@@ -2,7 +2,7 @@
 # rubygems
 %w[rubygems yui/compressor closure-compiler hpricot].each{|lib| require lib}
 # ruby standard library
-%w[logger singleton yaml base64 open-uri pathname optparse].each{|lib| require lib}
+%w[logger singleton yaml base64 open-uri pathname optparse fileutils].each{|lib| require lib}
 
 # add lib sub-directories to load path
 SQWEEZE_DIR=File.expand_path( File.dirname(File.dirname(__FILE__)))
@@ -77,6 +77,16 @@ op=OptionParser.new do |opts|
     options[:default_js_compressor] = j.downcase.to_sym
   end
 
+  opts.separator ""
+  opts.separator "Console output:"
+  
+  opts.on('-q',"--quite", "suppress console output ") do |q|  
+      options[:suppress_warn] = true
+      options[:suppress_info] = true
+  end
+  opts.on('-d',"--debug", "show debug information") do |q|  
+      options[:suppress_debug] = false
+  end
 end
 
 begin 
@@ -86,7 +96,6 @@ begin
              exit(1) }.call unless File.exists?(ARGV[0])
   
 
-  $log=Logger.new( STDERR )
   cm=ConfManager.instance
   cm.prepare(ARGV[0], ARGV[1], options)
    

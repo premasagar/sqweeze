@@ -82,7 +82,7 @@ class Compressor
                  gsub('%input%',inputpath).
                  gsub('%output%', output_path)
      system(cl)
-     $log.debug("run command #{cl}, pid=#{$?.pid} exitstatus=#{$?.exitstatus}")  
+     notify("run command #{cl}, pid=#{$?.pid} exitstatus=#{$?.exitstatus}", :debug)  
      output_path
   end
 
@@ -101,7 +101,10 @@ class Compressor
     files.each do |path|
       output_path=process(path,cmd)
       size_check(path,output_path) unless %w(.css .js).include?( File.extname(output_path))   
-    end  
+    end
+    
+    # summarise compression stats
+    print_summary  unless ['.css','.js' ].include?(@input_file_extensions)
   end
   
   # Makes sure that the byteweight of a compressed file is not larger that the original one.  
@@ -110,10 +113,10 @@ class Compressor
     before_size, after_size = byteweight(input_path), byteweight(output_path)
       # if the compressed file is bigger than the original one, copy the original in the target dir
     if after_size < before_size 
-          $log.info("compressed #{input_path} to the #{ compression_percentage(before_size,after_size)}% of its original size  (from: #{before_size} to #{after_size} bytes ) ")
+          notify("compressed #{input_path} to the #{ compression_percentage(before_size,after_size)}% of its original size  (from: #{before_size} to #{after_size} bytes ) ", :debug)
           @byteweight_after+=after_size
       else
-          $log.debug("Oppss!!! output(#{after_size}) >= input(#{before_size}), using the original file #{input_path} ")  
+          notify("output(#{after_size}) >= input(#{before_size}), keeping the original file #{input_path}",:debug)  
           FileUtils.cp(input_path,output_path)
           @byteweight_after+=before_size
       end
@@ -123,6 +126,12 @@ class Compressor
   
   def concatenate_files
     @input_files.collect{|f|File.open(f,'r').read}.join("\n")
+  end
+  
+  def print_summary    
+       notify("Compressed #{ansi_bold(@input_files.size)} #{@input_file_extensions.first.upcase} files".ljust(60) +
+             "#{ansi_green(compression_percentage(@byteweight_before,@byteweight_after)+'%')} (was #{ansi_bold(@byteweight_before)}, is #{ansi_bold(@byteweight_after)} bytes now) \n", 
+             :info) unless @byteweight_before == 0
   end
 
 end

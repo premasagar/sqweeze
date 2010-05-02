@@ -40,6 +40,9 @@ class CssCompressor < Compressor
     
     unless compressed_output.chomp.empty?
      write_file(compressed_output,"#{@cm.target_dir}/stylesheets.min.css") 
+     
+     # set the total byte-weight 
+     @byteweight_after=byteweight(compressed_output) 
      embed_datauris( compressed_output )     
      embed_mhtml( compressed_output ) if @cm.get_conf(:mhtml_root) 
     end

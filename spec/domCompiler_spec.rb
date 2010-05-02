@@ -1,16 +1,20 @@
-require '../conf/environment.rb'
-require 'sqw_spec_helper.rb'
+require '../lib/confManager'
+require '../lib/DomCompiler'
+require '../lib/jsDomCompiler'
+require '../lib/cssDomCompiler'
+require 'sqw_spec_helper'
 
 describe DOMCompiler do 
    before(:each) do 
       wget_webpage('http://www.dreamhost.com/domains.html','dom-testdir') 
       cm = ConfManager.instance
-      cm.set_directories('dom-testdir','dom-testdir-build')
+      cm.prepare('dom-testdir','dom-testdir-build')
       @js_c=JSDOMCompiler.new
     end
   
     after(:each) do
-    #  FileUtils.rm_r('dom-testdir')
+      FileUtils.rm_r('dom-testdir')
+      FileUtils.rm_r('dom-testdir-build')
     end
     
     it "(all subclasses) should look for *dom_documents* in target directory" do     
@@ -32,8 +36,6 @@ describe DOMCompiler do
       @css_c.compile()
     end
     
- 
- 
 end
 
 #

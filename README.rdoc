@@ -19,10 +19,10 @@ On an Ubuntu box, you can install these by running a single command line
  
   sudo apt-get install pngcrush gifsicle libjpeg-progs  
 
-(Mac OSX users can install the first two as Macports packages. The third (part of libjpeg) instead, has to be 
-{compiled manually}[http://www.phpied.com/installing-jpegtran-mac-unix-linux]. However, Jpegtrain will not be needed as long as you do not have Jpeg files into your project.)
+Mac OSX users can install the first two as Macports packages. The third (part of libjpeg) instead, has to be 
+{compiled manually}[http://www.phpied.com/installing-jpegtran-mac-unix-linux]. 
 
-Once installed these, you can install sqweeze using rubygems
+Once installed these, you can install _Sqweeze_ using rubygems
 
  gem install sqweeze
 
@@ -37,4 +37,4 @@ When run for the first time, the script creates a config file in the user's $HOM
     - jpegtran: /usr/bin/jpegtran
     - gifsicle: /usr/bin/gifsicle
  
-If you have installed these anywhere else than in +/usr/bin+, you will have to edit this file so that sqweeze can find them.    
+If you have installed these anywhere else than in /usr/bin+, you will have to edit this file so that sqweeze can find them.    

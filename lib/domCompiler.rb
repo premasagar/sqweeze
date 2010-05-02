@@ -29,7 +29,7 @@ class DOMCompiler
       write_file(doc.innerHTML, path )
     end
       else
-      $log.error("DOMCompiler cannot parse #{path}")  
+      notify("DOMCompiler cannot parse #{path}",:error)  
     end
    end
   end

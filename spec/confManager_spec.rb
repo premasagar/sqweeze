@@ -1,5 +1,5 @@
-require '../conf/environment.rb'
 require 'sqw_spec_helper'
+
 
 describe ConfManager do 
   context "Starting up" do
