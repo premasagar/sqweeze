@@ -12,7 +12,7 @@ class JsDomCompiler < DOMCompiler
   
   
   def compress(fbody)
-   unless @cm.default_js_compressor == :closure
+   unless @cm.get_conf(:default_js_compressor) == :closure
        compressor, method = YUI::JavaScriptCompressor.new( :munge => true), :compress
      else
        compressor, method = Closure::Compiler.new, :compiler

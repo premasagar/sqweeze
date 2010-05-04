@@ -10,9 +10,8 @@ module SqweezeUtils
       '.tiff' => 'image/tiff',
       '.ttf' => 'font/truetype',
       '.otf' => 'font/opentype'
-  } 
+  }   
   
-
   def write_file(fbody,fpath)
     File.open(fpath,'w') do |f|
       f.write(fbody)
@@ -32,26 +31,42 @@ module SqweezeUtils
   # Otherwise, if the resource is a relative url in the source dir, try 
   # to map it to its compressed version in the target directory
   
-  def remap_filepath(path)
-    path=Pathname.new(path)
-    parent_dir, path_basename = path.parent, path.basename
+  def remap_filepath(path)  
+    parent_dir, path_basename = path.split('/')[-2..-1]
+    # Handle file paths at 0 level of depth 'style.css'
+    path_basename = path if path_basename.nil? 
+    parent_dir = get_confManager().target_dir if parent_dir == get_confManager().source_dir or path.split('/').size() == 2
+    
+
     is_absolute = URI.parse(path).absolute? 
     unless is_absolute
-       find_file_in_targetdir( [parent_dir, path_basename].join('/'))
+       find_file_in_targetdir([parent_dir, path_basename].join('/'))
       else 
        path.to_s
     end
   end
   
+
+
+  # Find a file in the target directory
+  # endpath is a string containing parent directory and file name 
+  # (e.g imgs/separator.png)
+  
+  def find_file_in_targetdir(endpath)
+    pattern= [get_confManager.target_dir,"**/**"].join('/')
+    # puts "Searching for #{endpath} into #{pattern}"
+    Dir[pattern].find{|path| path =~ Regexp.new("#{endpath}$")}
+  end
+
+
+
   # Return the Base64-encoded contents of an asset on a single line.
   def encoded_contents(asset_path)
       data = open(asset_path, 'rb'){|f| f.read }
       Base64.encode64(data).gsub(/\n/, '')
   end  
   
-  
-   # Gets the byte weight of input strames, wether these are file paths or just strings
-
+  # Gets the byte weight of input strames, wether these are file paths or just strings
   def byteweight(path_or_string)
       path_or_string="" if path_or_string.nil?
   
@@ -68,18 +83,6 @@ module SqweezeUtils
     sprintf('%.2f',after_bweight/before_bweight.to_f * 100)
   end
   
-
-  # Find a file in the target directory
-  # endpath is a string containing parent directory and file name 
-  # (e.g imgs/separator.png)
-  
-  # TODO: rewrite this! (it sucks..)
-
-  def find_file_in_targetdir(endpath)
-    pattern=  [get_confManager.target_dir,"**/*#{File.extname(endpath)}"].join('/')
-    #puts "searcing for files in #{pattern} ending with #{endpath}"
-    Dir[pattern].find{|path| path =~ Regexp.new("#{endpath}$")}
-  end
   
 
   # Prints to STDERR and adds a log entry. 

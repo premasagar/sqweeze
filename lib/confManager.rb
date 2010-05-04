@@ -37,7 +37,7 @@ class ConfManager
     }
   end   
   attr_reader :target_dir,:source_dir,
-                :files,:conf_filename,:conf              
+              :files,:conf_filename,:conf              
   
   
   # Setter method used to populate the <code>@conf</code> attribute with key value pairs.
@@ -93,7 +93,7 @@ class ConfManager
     FileUtils.rm_r(nested_dir) if File.directory?(nested_dir)
   end
 
-  # Remaps a filepath from the source to the target directory.
+  # Re-maps a file path from the source to the target directory.
   #
   #  TODO:check if this works with relative paths (i.e. <code>../imgs/bar.png</code>)
   
@@ -103,7 +103,6 @@ class ConfManager
 
  
   # Generates a file pattern suitable to be expanded by ruby's {Dir[]}[http://ruby-doc.org/core/classes/Dir.html] method.
-
   def mkpath(pattern,dir=@source_dir) 
     dir.to_a.push(pattern).join('/')
   end
@@ -127,7 +126,6 @@ class ConfManager
   end
     
   # Parses configuration files and sets user-defined file inclusion/exlusion patterns.
-  
   def parse_conf(configfile="#{ENV['HOME']}/#{@conf_filename}")
     notify("Parsing configuration file: #{configfile}",:debug) 
     conf=YAML::load_file( configfile ) 

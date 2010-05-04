@@ -1,5 +1,21 @@
-     SQW_CONF_FILE='test_dir/.sqweeze.yml'
-     SQW_FBODY=<<EOF
+require 'singleton'
+require 'hpricot'
+require 'fileutils'
+require 'logger'
+require 'open-uri'
+require 'pp'
+require 'yui/compressor' 
+require 'closure-compiler'
+require 'hpricot'
+require '../lib/sqweezeUtils'
+require '../lib/confManager'
+require '../lib/domCompiler'
+require '../lib/compilers/jsDomCompiler'
+require '../lib/compilers/cssDomCompiler'
+
+
+SQW_CONF_FILE='test_dir/.sqweeze.yml'
+SQW_FBODY=<<EOF
 bin_paths:
    - pngcrush: /usr/bin/pngcrush
    - jpegtran: /usr/bin/jpegtran

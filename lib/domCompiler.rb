@@ -7,29 +7,30 @@ class DOMCompiler
      #   @dom_extnames=['.html','.svg']
      @cm=ConfManager.instance
      #if @cm.link_assets_to and not @cm.link_assets_to.empty? 
-     @dom_documents=@cm.get_conf(:dom_documents).to_a
+     @dom_documents=@cm.get_conf(:dom_documents).collect{|path| remap_filepath(path) }
   end
   # Retrieves a resource, being this either a URL or a file.
   def get_resource(path_or_url)
-    f=open(remap_filepath(path_or_url))
+    target_path=remap_filepath(path_or_url)
+    f=open(target_path)
     (f.is_a? File)? f.read : f 
   end
-  # Iterates over a DOM element and allows to apply a custom block over it. 
-  
+
+  # Iterates over a DOM element and allows to apply a custom block over it.
   def iterate_over(selector)  
    @dom_documents.each do |path|
-    doc=Hpricot(open(path))
-    if doc
+   raise "File #{path} does not seem to exist" unless File.exists?(path)
+   doc=Hpricot(open(path))
+
+   if doc
       doc.search(selector).each do |element|
-        
-      #$log.debug..
-      yield(element, doc)
-      # save document 
-      #write_file(doc.innerHTML, [@cm.target_dir, File.basename(path) ].join('/') )
+      yield(element, doc) 
       write_file(doc.innerHTML, path )
     end
       else
-      notify("DOMCompiler cannot parse #{path}",:error)  
+      notify("DOMCompiler cannot parse #{path}",
+             :error
+      )
     end
    end
   end

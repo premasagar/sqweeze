@@ -1,5 +1,7 @@
 #! /usr/bin/env ruby
-# rubygems
+
+
+# third party libs
 %w[rubygems yui/compressor closure-compiler hpricot].each{|lib| require lib}
 # ruby standard library
 %w[logger singleton yaml base64 open-uri pathname optparse fileutils].each{|lib| require lib}
@@ -24,7 +26,7 @@ op=OptionParser.new do |opts|
 
   opts.banner = "Usage: sqweeze [options] SOURCE_DIR [TARGET_DIR]"
   opts.program_name= 'sqweeze'
-  opts.on("-s", "--optimisation-strategy=ALL_IN_ONE",
+  opts.on("-S", "--optimisation-strategy=ALL_IN_ONE",
           "JavaScript/CSS optimisation strategy to be adopted ") do |s|
     raise OptionParser::InvalidArgument unless ['all_inline','all_in_one'].include?(s)
     options[:optimisation_strategy] = s.downcase.to_sym
@@ -38,7 +40,7 @@ op=OptionParser.new do |opts|
   opts.on('-e','--exclude-files=PATTERN', "Exclude a file/directory pattern (e.g. doc/**/*.* )") do |exc|
     options[:exclude_files] = exc
   end
-  opts.on('-d','--dom-documents=PATTERN', "Dom document/s to which CSS/JS  should be linked (e.g. **/index.html )") do |dom|
+  opts.on('-D','--dom-documents=PATTERN', "Dom document/s to which CSS/JS  should be linked (e.g. **/index.html )") do |dom|
     options[:dom_documents] = dom
   end  
 
@@ -98,7 +100,8 @@ begin
 
   cm=ConfManager.instance
   cm.prepare(ARGV[0], ARGV[1], options)
-   
+  
+
   # Compress images  
   { :compress_png => PngCompressor.new, 
     :compress_gif => GifCompressor.new,
@@ -109,16 +112,17 @@ begin
   
   case cm.get_conf(:optimisation_strategy)
     when :all_inline
-     puts "not implemented yet.."
-     exit
-
+       raise "You must specify a valid DOM document to use the inline strategy" unless File.exists?(cm.get_conf(:dom_documents).first) 
+       JsDomCompiler.new.compile
+       CssDomCompiler.new.compile
 
     when :all_in_one 
+      
       { :compress_js => JsCompressor.new, 
         :compress_css => CssCompressor.new
       }.each do |opt, cmp|
          cmp.compress unless cm.get_conf(opt) == false
-      end
+        end
       # link assets to main HTML file
       AssetLinker.new.compile unless cm.get_conf(:dom_documents).empty?
   end
