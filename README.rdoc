@@ -9,8 +9,7 @@ With a little help from a number of well known open source third party tools, _S
 1. Lossless compresses .PNG, .JPEG and .GIF image assets. 
 2. Compresses and concatenates into single files multiple Stylesheets and Javascript files.
 3. Embeds the compressed image assets into the stylesheet, using {Data-uris}[https://developer.mozilla.org/En/The_data_URL_scheme] (for proper browsers and IE8) and {MHTML}[http://en.wikipedia.org/wiki/MHTML] (for IE6 and IE7). 
-4. Finally, it provides some basic functionality for linking the compressed Javascript and CSS just created, to the main HTML document, 
-  and removing automatically the links pointing to the old uncompressed ones.  
+4. Finally, it provides some basic functionality for linking the compressed Javascript and CSS just created, to the main HTML document, and removing automatically the links pointing to the old uncompressed ones.  
 
 === Installing it
 
@@ -72,11 +71,12 @@ At this point, both the Data URI and the MHTML stylesheet can be linked to the m
          <link href="css/stylesheets.min.mhtml.css" media="screen" rel="stylesheet" type="text/css" />
    <![endif]-->
 
-==== Inline asset optimisation
+This latter step can be automated by supplying the <code>-D</code> (DOM-Documents) parameter to the script. In this case, Sqweeze will simply delete from the DOM all the pre-existing <code>SCRIPT</code> and <code>LINK</code> elements having a src (or a href)  attribute, and append the generated ones to the document's <code>HEAD</code>. However, this functionality is rather crude at the moment, and most certainly will require some manual tweaking on the user side. 
 
-Although the process described above is the most broadly adopted by already established Web optimisation tools (e.g. Jammit), 
-sometimes it can be useful - in order to reduce the amount of HTTP requests - to render compressed assets in-line, directly in the HTML file 
-(as opposed to linking them to an external stylesheet or javascript ). Although this is still very experimental and does not support base64 image embedding yet, sqweeze provides a functionality for compiling assets inline into an HTML file. 
+
+==== Inline asset optimisation 
+
+Although the optimisation strategy described above is probably effective in most of the cases, in same cases it can be useful - in order to reduce the amount of HTTP requests - to place compressed assets in-line, directly in the HTML file (as opposed to placing them into external stylesheets ). Sqweeze provides in fact an experimental functionality for compiling assets inline into the DOM document (This is still experimental and rather useless at the moment, as it does not support base64 image embedding yet). 
 
   sqweeze -S all_inline -D source_dir/index.html source_dir
 
