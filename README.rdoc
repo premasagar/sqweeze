@@ -6,29 +6,31 @@ A command line web asset optimisation tool.
 _Sqweeze_ cuts the unnecessary bytes out of your web assets, helping you delivering your web project more fast and efficiently. 
 With a little help from a number of well known open source third party tools, _Sqweeze_ does the following:
 
-* Lossless compresses .PNG, .JPEG and .GIF image assets. 
-* Compresses and concatenates into single files multiple Stylesheets and Javascript files.
-* Embeds the compressed assets referenced into the stylesheet, using using {Data-uris}[https://developer.mozilla.org/En/The_data_URL_scheme] (for proper browsers and IE8) and {MHTML}[http://en.wikipedia.org/wiki/MHTML] (for IE6-7). 
-* Finally, it provides some basic functionality for linking the compressed Javascript and CSS just created to the main HTML document, 
+1. Lossless compresses .PNG, .JPEG and .GIF image assets. 
+2. Compresses and concatenates into single files multiple Stylesheets and Javascript files.
+3. Embeds the compressed image assets into the stylesheet, using {Data-uris}[https://developer.mozilla.org/En/The_data_URL_scheme] (for proper browsers and IE8) and {MHTML}[http://en.wikipedia.org/wiki/MHTML] (for IE6 and IE7). 
+4. Finally, it provides some basic functionality for linking the compressed Javascript and CSS just created, to the main HTML document, 
   and removing automatically the links pointing to the old uncompressed ones.  
 
 === Installing it
 
 Sqweeze relies on a few command-line image compression tools, namely Pngcrush, Jpegtrain, and Gifsicle, which have to be installed first. 
-On an Ubuntu box, you can install these by running a single command line
+On an Ubuntu box, you can install these all in once by running a single command line
  
   sudo apt-get install pngcrush gifsicle libjpeg-progs  
 
 Mac OSX users can install the first two as Macports packages. The third (part of libjpeg) instead, has to be 
 {compiled manually}[http://www.phpied.com/installing-jpegtran-mac-unix-linux]. 
 
-Once installed these, you can install _Sqweeze_ using rubygems
+Once installed these third party tools, you can install _Sqweeze_ using the rubygems package manager 
 
  gem install sqweeze
 
+(this assumes that you have both ruby and rugygems installed). 
+
 === Configuration
 
-When run for the first time, the script creates a config file in the user's $HOME directory and sets therein the default paths of command line tools such as pngcrush and friends. 
+When run for the first time, the script creates a configuration file in the user's $HOME directory, and sets therein the default file paths of Pngcrush and friends. 
  
  # file $HOME/.sqweeze.yml
 
@@ -37,4 +39,45 @@ When run for the first time, the script creates a config file in the user's $HOM
     - jpegtran: /usr/bin/jpegtran
     - gifsicle: /usr/bin/gifsicle
  
-If you have installed these anywhere else than in /usr/bin+, you will have to edit this file so that sqweeze can find them.    
+If you have installed those anywhere else than in <code>/usr/bin</code>, you will have to edit this file with your own paths, so that sqweeze can find them.  
+
+=== Usage 
+
+
+ sqweeze input_dir [target_dir]
+
+When invoked with no options, sqweeze will simply copy the content of a source directory, compress its Image assets, and finally generate three new files in the target directory:
+
+[javascripts.min.js]
+   A file concatenating and compressing together all the other javascript files in the source directory
+[styleshees.min.js] 
+   A file concatenating and compressing together all the other Stylesheets in the source directory
+[styleshees.min.datauri.js] 
+   Same as stylesheets.min.js, but embedding the image referenced in the stylesheets through the data URI scheme.
+
+==== MHTML Support
+
+Whilst the generated <code>stylesheets.all.datauri.css</code> will work fine in most recent web-browsers (i.e Chrome, Safari, Firefox, IE 8), it will 
+fail displaying images in Internet Explorer 6 and 7. A viable way around to this limitation, however, is that of using
+Microsoft's MIME HTML. In order to have sqweeze generate also a MHTML stylesheet suitable to be read by IE6 and IE7, one has to specify the parameter <code>--MHTML-ROOT</code>; that is the URL of the directory where the stylesheet will be deployed. 
+
+ sqweeze --mhtml-root=http://example.com/css example-sourcedir
+
+At this point, both the Data URI and the MHTML stylesheet can be linked to the main index.html and loaded selectively through {Internet Explorer's Conditional Comments}[http://en.wikipedia.org/wiki/Conditional_comment]
+
+    <!--[if (!IE)|(gte IE 8)]><!-->
+         <link href="css/stylesheets.min.datauri.css" media="screen" rel="stylesheet" type="text/css" />
+    <!--<![endif]-->
+    <!--[if lte IE 7]>
+         <link href="css/stylesheets.min.mhtml.css" media="screen" rel="stylesheet" type="text/css" />
+   <![endif]-->
+
+==== Inline asset optimisation
+
+Although the process described above is the most broadly adopted by already established Web optimisation tools (e.g. Jammit), 
+sometimes it can be useful - in order to reduce the amount of HTTP requests - to render compressed assets in-line, directly in the HTML file 
+(as opposed to linking them to an external stylesheet or javascript ). Although this is still very experimental and does not support base64 image embedding yet, sqweeze provides a functionality for compiling assets inline into an HTML file. 
+
+  sqweeze -S all_inline -D source_dir/index.html source_dir
+
+[....]

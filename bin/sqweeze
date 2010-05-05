@@ -95,7 +95,7 @@ begin
   op.parse!
   Proc.new { puts "Missing SOURCE_DIR argument"; exit(1) }.call unless ARGV[0]
   Proc.new { puts "source directory #{ARGV[0]} does not exist, please provide a valid path"
-             exit(1) }.call unless File.exists?(ARGV[0])
+             exit(1) }.call unless ARGV[0] and File.exists?(ARGV[0])
   
 
   cm=ConfManager.instance

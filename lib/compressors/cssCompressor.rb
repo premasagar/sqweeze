@@ -19,9 +19,8 @@ class CssCompressor < Compressor
     EMBED_DETECTOR = /url\(['"]?([^\s)]+\.[a-z]+)(\?\d+)?['"]?\)/
 
     # MHTML file constants.
-    MHTML_START = "/*\nContent-Type: multipart/related; boundary=\"SQWEEZED_ASSET\"\n"
-    MHTML_SEPARATOR= "--SQWEEZED_ASSET"
-    MHTML_END = "*/\n"
+    MHTML_START = "/*\r\nContent-Type: multipart/related; boundary=\"SQWEEZED_ASSET\"\r\n\r\n"
+    MHTML_SEPARATOR= "--SQWEEZED_ASSET\r\n"
 
   def initialize
     super('css')  
@@ -59,12 +58,16 @@ class CssCompressor < Compressor
   end
 
   def embed_datauris(compressed_css)
+
     out=compressed_css.gsub(EMBED_DETECTOR) do |url|
-    compressed_asset_path=remap_filepath($1)
+      
+      compressed_asset_path=remap_filepath($1)
       mime_t=mime_type(compressed_asset_path)
       if compressed_asset_path and File.exists?(compressed_asset_path) and File.size(compressed_asset_path) < MAX_IMAGE_SIZE and mime_t
+         
          base64_asset=encoded_contents( compressed_asset_path ) 
-         $log.debug("file:#{compressed_asset_path}; mime-type: #{mime_type($1)}#")
+
+         notify("file:#{compressed_asset_path}; mime-type: #{mime_type($1)}#",:debug)
          # label the image
          @assets[ compressed_asset_path ] = base64_asset 
          "url(\"data:#{mime_t};charset=utf-8;base64,#{base64_asset}\")"
@@ -73,7 +76,9 @@ class CssCompressor < Compressor
       end
     end
 
-    
+    total_file_weight=@assets.keys.inject(0){|sum,path| sum+File.size(path)}
+
+   notify("Converting #{ansi_bold(@assets.size)} images (#{ansi_bold(total_file_weight)} bytes) into base64".ljust(60),:info)
     write_file(out,"#{@cm.target_dir}/stylesheets.min.datauri.css")
   end
 
@@ -82,18 +87,18 @@ class CssCompressor < Compressor
     mhtml= MHTML_START
    
     @assets.each do |mhtml_loc,base64|
-    mhtml <<"
-#{MHTML_SEPARATOR}  
-Content-location: #{ mhtml_loc  }
-Content-Transfer-Encoding:base64
-
-#{base64}\n"
+      mhtml << [MHTML_SEPARATOR, 
+               "Content-location: #{mhtml_loc}\r\n", 
+               "Content-Transfer-Encoding: base64\r\n",
+               "Content-type: #{mime_type(mhtml_loc)} \r\n\r\n",
+               "#{base64}\r\n"
+      ].join('')
     end
-    mhtml << "*/\n"
+    mhtml << "*/\r\n"
     mhtml << compressed_css.gsub(EMBED_DETECTOR) do |css|
       compressed_asset_path=remap_filepath($1)
       if compressed_asset_path
-       "url(mhtml:#{@cm.get_conf(:mhtml_root).gsub(/\/$/,'')}/stylesheets.min.mhtml.css!#{mhtml_location( compressed_asset_path)})"
+       "url(mhtml:#{@cm.get_conf(:mhtml_root).gsub(/\/$/,'')}/stylesheets.min.mhtml.css!#{compressed_asset_path})"
         else
         "url(#{$1})"
       end

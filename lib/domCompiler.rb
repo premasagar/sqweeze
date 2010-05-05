@@ -11,7 +11,9 @@ class DOMCompiler
   end
   # Retrieves a resource, being this either a URL or a file.
   def get_resource(path_or_url)
+    puts "opening ..#{path_or_url}"
     target_path=remap_filepath(path_or_url)
+    puts "tp: #{target_path}"
     f=open(target_path)
     (f.is_a? File)? f.read : f 
   end

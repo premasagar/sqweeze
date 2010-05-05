@@ -33,16 +33,20 @@ module SqweezeUtils
   
   def remap_filepath(path)  
     parent_dir, path_basename = path.split('/')[-2..-1]
+
     # Handle file paths at 0 level of depth 'style.css'
-    path_basename = path if path_basename.nil? 
-    parent_dir = get_confManager().target_dir if parent_dir == get_confManager().source_dir or path.split('/').size() == 2
+    path_basename = path if path_basename.nil?
     
+    parent_dir = get_confManager().target_dir if parent_dir.gsub(/\/$/,'') == get_confManager().source_dir.gsub(/\/$/,'')   
+    
+
 
     is_absolute = URI.parse(path).absolute? 
     unless is_absolute
-       find_file_in_targetdir([parent_dir, path_basename].join('/'))
+       
+    find_file_in_targetdir([parent_dir, path_basename].join('/'))
       else 
-       path.to_s
+       path
     end
   end
   

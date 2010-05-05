@@ -20,15 +20,12 @@ class AssetLinker < DOMCompiler
 
 stylesheets_html=<<EOF     
 
-      <!--[if lte IE 8]>
-          <link href="stylesheets.min.mhtml.css" rel="stylesheet" />
-      <![endif]-->
-      <!--[if IE 8]>
-          <link href="stylesheets.min.datauri.css" rel="stylesheet" />
-      <![endif]-->
-      <!--[if !IE]>
-         <link href="stylesheets.min.datauri.css" rel="stylesheet" />
-      <![endif]-->
+        <!--[if (!IE)|(gte IE 8)]><!-->
+              <link href="stylesheets.min.datauri.css" media="screen" rel="stylesheet" type="text/css" />
+         <!--<![endif]-->
+         <!--[if lte IE 7]>
+              <link href="stylesheets.min.mhtml.css" media="screen" rel="stylesheet" type="text/css" />
+        <![endif]-->
 EOF
      
       # Append concatenated CSS files, wrapping them within IE conditional tags
