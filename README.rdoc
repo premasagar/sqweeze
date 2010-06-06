@@ -45,7 +45,7 @@ If you have installed those anywhere else than in <code>/usr/bin</code>, you wil
 
  sqweeze input_dir [target_dir]
 
-When invoked with no options, sqweeze will simply copy the content of a source directory, compress its Image assets, and finally generate three new files in the target directory:
+When invoked with no options, sqweeze will simply copy the content of a source directory, compress its image assets, and finally generate three new files in the target directory:
 
 [javascripts.min.js]
    A file concatenating and compressing together all the other javascript files in the source directory
@@ -73,9 +73,9 @@ At this point, both the Data URI and the MHTML stylesheet can be linked to the m
 This latter step can be automated by supplying the <code>-D</code> (DOM-Documents) parameter to the script. In this case, Sqweeze will simply delete from the DOM all the pre-existing <code>SCRIPT</code> and <code>LINK</code> elements having a src (or a href)  attribute, and append the generated ones to the document's <code>HEAD</code>. However, this functionality is rather crude at the moment, and most certainly will require some manual tweaking on the user side. 
 
 
-==== Inline asset optimisation 
+==== Inline asset optimisation (experimental)
 
-Although the optimisation strategy described above is probably effective in most of the cases, in same cases it can be useful - in order to reduce the amount of HTTP requests - to place compressed assets in-line, directly in the HTML file (as opposed to placing them into external stylesheets ). Sqweeze provides in fact an experimental functionality for compiling assets inline into the DOM document (This is still experimental and rather useless at the moment, as it does not support base64 image embedding yet). 
+Although the optimisation strategy described above is probably effective in most of the cases, in some cases it can be useful to reduce the amount of HTTP requests by placing compressed assets inline, directly within the HTML file, rather than in external stylesheets. Sqweeze provides functionality for compiling assets inline into the DOM document This is still experimental at the moment, and does not yet support base64 image embedding. 
 
   sqweeze -S all_inline -D source_dir/index.html source_dir
 
