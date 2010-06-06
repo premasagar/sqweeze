@@ -16,14 +16,14 @@ With a little help from a number of well known open source third party tools, _S
 Sqweeze relies on a few command-line image compression tools, namely Pngcrush, Jpegtrain, and Gifsicle, which have to be installed first. 
 On an Ubuntu box, you can install these all in once by running a single command line
  
-  sudo apt-get install pngcrush gifsicle libjpeg-progs  
+ sudo apt-get install pngcrush gifsicle libjpeg-progs  
 
 Mac OSX users can install the first two as Macports packages. The third (part of libjpeg) instead, has to be 
 {compiled manually}[http://www.phpied.com/installing-jpegtran-mac-unix-linux]. 
 
 Once installed these third party tools, you can install _Sqweeze_ using the rubygems package manager 
 
- gem install sqweeze
+ sudo gem install sqweeze
 
 (this assumes that you have both ruby and rugygems installed). 
 
@@ -49,15 +49,14 @@ When invoked with no options, sqweeze will simply copy the content of a source d
 
 [javascripts.min.js]
    A file concatenating and compressing together all the other javascript files in the source directory
-[styleshees.min.js] 
+[stylesheets.min.js] 
    A file concatenating and compressing together all the other Stylesheets in the source directory
-[styleshees.min.datauri.js] 
+[stylesheets.min.datauri.js] 
    Same as stylesheets.min.js, but embedding the image referenced in the stylesheets through the data URI scheme.
 
 ==== MHTML Support
 
-Whilst the generated <code>stylesheets.all.datauri.css</code> will work fine in most recent web-browsers (i.e Chrome, Safari, Firefox, IE 8), it will 
-fail displaying images in Internet Explorer 6 and 7. A viable way around to this limitation, however, is that of using
+Whilst the generated <code>stylesheets.all.datauri.css</code> will work fine in most recent web-browsers (i.e Chrome, Safari, Firefox, IE 8), it will fail displaying images in Internet Explorer 6 and 7. A viable way around to this limitation, however, is that of using
 Microsoft's MIME HTML. In order to have sqweeze generate also a MHTML stylesheet suitable to be read by IE6 and IE7, one has to specify the parameter <code>--MHTML-ROOT</code>; that is the URL of the directory where the stylesheet will be deployed. 
 
  sqweeze --mhtml-root=http://example.com/css example-sourcedir
