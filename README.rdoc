@@ -13,7 +13,7 @@ With a little help from a number of well known open source third party tools, _S
 
 === Installing it
 
-Sqweeze relies on a few command-line image compression tools, namely Pngcrush, Jpegtrain, and Gifsicle, which have to be installed first. 
+Sqweeze relies on a few command-line image compression tools, namely Pngrush, Jpegtran, and Gifsicle, which have to be installed first. 
 On an Ubuntu box, you can install these all in once by running a single command line
  
  sudo apt-get install pngcrush gifsicle libjpeg-progs  
