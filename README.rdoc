@@ -1,5 +1,9 @@
 == Sqweeze 
-A command line web asset optimisation tool. 
+A command line web asset optimisation tool.
+
+Sqweeze was built for the {Sqwidget}[http://github.com/premasagar/sqwidget] project, where it is used to build single- or multi-document compressed widgets. However, Sqweeze can be used wherever you need minification and concatenation of scripts and styles, and data encoded images and assets.
+
+Status: pre-alpha
 
 === Features
 
